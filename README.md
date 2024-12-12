@@ -2,6 +2,25 @@
 
 ## Git flow
 
+## Стек-технологий
+* Go
+* Gin
+* PostgreSQL
+* GORM
+* golang-migrate
+* Go testing package + Testify
+* JWT
+* Docker + Docker-compose
+* TypeScript
+* React
+* Nginx
+---
+
+## DB model
+![dbmodel.png](docs/dbmodel.png)
+---
+
+
 ### Основные ветки
 
 **develop:** основная рабочая ветвь. Все новые ветки создаём из неё.  Она содержит код, готовый для тестирования.
