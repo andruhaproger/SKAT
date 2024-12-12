@@ -1,0 +1,199 @@
+project_name/
+├── api/
+│   ├── handlers/
+│   │   ├── user_handler.go   # Логика обработки запросов пользователей
+│   │   │   
+│   │   │   package handlers
+│   │   │
+│   │   │   import (
+│   │   │       "github.com/gin-gonic/gin"
+│   │   │       "project_name/models"
+│   │   │       "project_name/services"
+│   │   │   )
+│   │   │
+│   │   │   func GetUser(c *gin.Context) {
+│   │   │       id := c.Param("id")
+│   │   │       user, err := services.GetUserByID(id)
+│   │   │       if err != nil {
+│   │   │           c.JSON(404, gin.H{"error": "User not found"})
+│   │   │           return
+│   │   │       }
+│   │   │       c.JSON(200, user)
+│   │   │   }
+│   │   └── ...              # Другие обработчики
+│   ├── middleware/
+│   │   ├── auth.go          # Промежуточное ПО для авторизации
+│   │   │
+│   │   │   package middleware
+│   │   │
+│   │   │   import (
+│   │   │       "github.com/gin-gonic/gin"
+│   │   │   )
+│   │   │
+│   │   │   func AuthMiddleware() gin.HandlerFunc {
+│   │   │       return func(c *gin.Context) {
+│   │   │           token := c.GetHeader("Authorization")
+│   │   │           if token == "" {
+│   │   │               c.JSON(401, gin.H{"error": "Unauthorized"})
+│   │   │               c.Abort()
+│   │   │               return
+│   │   │           }
+│   │   │           c.Next()
+│   │   │       }
+│   │   │   }
+│   │   └── ...              # Другие middleware
+│   └── routers.go           # Маршруты API
+│   │
+│   │   package api
+│   │
+│   │   import (
+│   │       "github.com/gin-gonic/gin"
+│   │       "project_name/api/handlers"
+│   │       "project_name/api/middleware"
+│   │   )
+│   │
+│   │   func SetupRouter() *gin.Engine {
+│   │       r := gin.Default()
+│   │       r.Use(middleware.AuthMiddleware())
+│   │       r.GET("/users/:id", handlers.GetUser)
+│   │       return r
+│   │   }
+├── config/
+│   ├── config.go            # Загрузка и обработка конфигурации
+│   │   
+│   │   package config
+│   │
+│   │   import (
+│   │       "gopkg.in/yaml.v2"
+│   │       "os"
+│   │   )
+│   │
+│   │   type Config struct {
+│   │       DBHost string `yaml:"db_host"`
+│   │       DBPort int    `yaml:"db_port"`
+│   │   }
+│   │
+│   │   func LoadConfig() (*Config, error) {
+│   │       file, err := os.Open("config/config.yaml")
+│   │       if err != nil {
+│   │           return nil, err
+│   │       }
+│   │       defer file.Close()
+│   │
+│   │       decoder := yaml.NewDecoder(file)
+│   │       cfg := &Config{}
+│   │       if err := decoder.Decode(cfg); err != nil {
+│   │           return nil, err
+│   │       }
+│   │       return cfg, nil
+│   │   }
+│   ├── config.yaml          # Основной файл конфигурации
+│   │   
+│   │   db_host: localhost
+│   │   db_port: 5432
+│   └── ...                  # Дополнительные файлы конфигурации
+├── db/
+│   ├── migrations/
+│   │   ├── 001_create_users_table.up.sql  # SQL для миграции вверх
+│   │   │
+│   │   │   CREATE TABLE users (
+│   │   │       id SERIAL PRIMARY KEY,
+│   │   │       name VARCHAR(100),
+│   │   │       email VARCHAR(100) UNIQUE
+│   │   │   );
+│   │   └── 001_create_users_table.down.sql # SQL для миграции вниз
+│   │   │
+│   │   │   DROP TABLE users;
+│   ├── db.go                # Подключение к базе данных
+│   │
+│   │   package db
+│   │
+│   │   import (
+│   │       "database/sql"
+│   │       _ "github.com/lib/pq"
+│   │   )
+│   │
+│   │   var DB *sql.DB
+│   │
+│   │   func InitDB(dataSourceName string) error {
+│   │       var err error
+│   │       DB, err = sql.Open("postgres", dataSourceName)
+│   │       if err != nil {
+│   │           return err
+│   │       }
+│   │       return DB.Ping()
+│   │   }
+│   └── seed.go              # Скрипт для заполнения базы данных начальными данными
+│   │
+│   │   package db
+│   │
+│   │   func Seed() {
+│   │       // Добавьте код для начальной загрузки данных
+│   │   }
+├── docker/
+│   ├── Dockerfile           # Dockerfile для Go приложения
+│   │   
+│   │   FROM golang:1.20
+│   │   WORKDIR /app
+│   │   COPY . .
+│   │   RUN go mod download
+│   │   RUN go build -o main .
+│   │   CMD ["./main"]
+│   ├── nginx/
+│   │   └── default.conf     # Конфигурация Nginx
+│   │   │
+│   │   │   server {
+│   │   │       listen 80;
+│   │   │       location / {
+│   │   │           proxy_pass http://app:8080;
+│   │   │       }
+│   │   │   }
+│   └── docker-compose.yml   # Файл docker-compose
+│   │
+│   │   version: '3.8'
+│   │   services:
+│   │       app:
+│   │           build: .
+│   │           ports:
+│   │               - "8080:8080"
+│   │       db:
+│   │           image: postgres:13
+│   │           environment:
+│   │               POSTGRES_USER: user
+│   │               POSTGRES_PASSWORD: password
+│   │               POSTGRES_DB: app_db
+│   │       nginx:
+│   │           image: nginx:latest
+│   │           volumes:
+│   │               - ./docker/nginx:/etc/nginx/conf.d
+│   │           ports:
+│   │               - "80:80"
+├── models/
+│   ├── user.go              # Модель пользователя
+│   │   
+│   │   package models
+│   │
+│   │   type User struct {
+│   │       ID    int    `json:"id"`
+│   │       Name  string `json:"name"`
+│   │       Email string `json:"email"`
+│   │   }
+│   └── ...                  # Другие модели
+├── services/
+│   ├── user_service.go      # Сервисы для работы с пользователями
+│   │   
+│   │   package services
+│   │
+│   │   import "project_name/models"
+│   │
+│   │   func GetUserByID(id string) (*models.User, error) {
+│   │       // Логика получения пользователя по ID
+│   │       return &models.User{ID: 1, Name: "John Doe", Email: "john.doe@example.com"}, nil
+│   │   }
+│   └── ...                  # Другие сервисы
+├── utils/
+│   ├── logger.go            # Логирование
+│   │   
+│   │   package utils
+│
+└── main.go     # Точка входа в приложение
