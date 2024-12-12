@@ -1,17 +1,23 @@
 package main
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"github.com/vgbhj/SKAT/api/controllers"
+	"github.com/vgbhj/SKAT/config"
+	"github.com/vgbhj/SKAT/db"
 )
+
+func init() {
+	config.LoadEnvs()
+	db.ConnectDB()
+
+}
 
 func main() {
 	router := gin.Default()
 
-	router.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"data": "hello world"})
-	})
-
-	router.Run("localhost:8080")
+	router.POST("/auth/signup", controllers.CreateUser)
+	router.POST("/auth/login", controllers.Login)
+	// router.GET("/user/profile", middlewares.CheckAuth, controllers.GetUserProfile)
+	router.Run()
 }
