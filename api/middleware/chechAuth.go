@@ -57,13 +57,15 @@ func CheckAuth(c *gin.Context) {
 	}
 
 	var user models.User
-	db.DB.Where("ID=?", claims["id"]).Find(&user)
 
-	if user.ID == 0 {
+	db := db.ConnectDB()
+	defer db.Close()
+	row := db.QueryRow("SELECT id, username FROM users WHERE id = $1", claims["id"])
+	err2 := row.Scan(&user.ID, &user.Username)
+	if err2 != nil {
 		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-
 	c.Set("currentUser", user)
 
 	c.Next()

@@ -20,10 +20,11 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	var userFound models.User
-	db.DB.Where("username=?", authInput.Username).Find(&userFound)
-
-	if userFound.ID != 0 {
+	db := db.ConnectDB()
+	defer db.Close()
+	var userCount int
+	err := db.QueryRow("SELECT COUNT(*) FROM users WHERE username = $1", authInput.Username).Scan(&userCount)
+	if userCount > 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "username already used"})
 		return
 	}
@@ -34,14 +35,12 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	user := models.User{
-		Username: authInput.Username,
-		Password: string(passwordHash),
+	_, err = db.Exec("INSERT INTO users (username, password) VALUES ($1, $2)", authInput.Username, string(passwordHash))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "could not create user"})
+		return
 	}
-
-	db.DB.Create(&user)
-
-	c.JSON(http.StatusOK, gin.H{"data": user})
+	c.JSON(http.StatusOK, gin.H{"message": "user created successfully"})
 }
 
 func Login(c *gin.Context) {
@@ -52,8 +51,15 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	db := db.ConnectDB()
+	defer db.Close()
+
 	var userFound models.User
-	db.DB.Where("username=?", authInput.Username).Find(&userFound)
+	err := db.QueryRow("SELECT id, password FROM users WHERE username = $1", authInput.Username).Scan(&userFound.ID, &userFound.Password)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
+		return
+	}
 
 	if userFound.ID == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "user not found"})
