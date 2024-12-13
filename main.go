@@ -18,6 +18,8 @@ func main() {
 
 	router.POST("/auth/signup", api.CreateUser)
 	router.POST("/auth/login", api.Login)
+	router.POST("/material", api.AddMaterial)
+	router.GET("/material/:id", api.GetMaterial)
 	// router.GET("/user/profile", middlewares.CheckAuth, controllers.GetUserProfile)
 	router.Run()
 }
