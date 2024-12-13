@@ -1,4 +1,4 @@
-package controllers
+package api
 
 import (
 	"net/http"
@@ -12,8 +12,13 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+type AuthInput struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
 func CreateUser(c *gin.Context) {
-	var authInput models.AuthInput
+	var authInput AuthInput
 
 	if err := c.ShouldBindJSON(&authInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -44,7 +49,7 @@ func CreateUser(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
-	var authInput models.AuthInput
+	var authInput AuthInput
 
 	if err := c.ShouldBindJSON(&authInput); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
