@@ -205,7 +205,7 @@ func GetMaterials(c *gin.Context) {
 	db := db.ConnectDB()
 	defer db.Close()
 
-	rows, err := db.Query("SELECT id, name, description, file_url, user_id, faculty_id, subject_id, year_id, university_id FROM materials")
+	rows, err := db.Query("SELECT id, name, description, file_url, user_id, faculty_id, subject_id, year_id, university_id FROM material")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Could not retrieve materials", Details: err.Error()})
 		return
