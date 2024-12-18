@@ -9,8 +9,12 @@ services:
       - "8080:8080"
     environment:
       - DB_URL=postgres://user:password@db:5432/mydatabase?sslmode=disable
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=youraccesskey
+      - MINIO_SECRET_KEY=yoursecretkey
     depends_on:
       - db
+      - minio
     volumes:
       - .:/app
     command: >
@@ -28,5 +32,18 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000" # Порт для доступа к MinIO API
+      - "9001:9001" # Порт для доступа к консоли MinIO
+    environment:
+      MINIO_ACCESS_KEY: youraccesskey
+      MINIO_SECRET_KEY: yoursecretkey
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
 volumes:
   pgdata:
+  minio_data:

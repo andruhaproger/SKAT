@@ -5,13 +5,16 @@ import (
 )
 
 // AddMaterial добавляет материал в базу данных
-func AddMaterial(material models.Material, fileBytes []byte) error {
+func AddMaterial(material models.Material) error {
 	mat := map[string]interface{}{
-		"id":      material.ID,
-		"name":    material.Name,
-		"desc":    material.Desc,
-		"file":    fileBytes,
-		"user_id": material.UserID,
+		"name":          material.Name,
+		"desc":          material.Desc,
+		"file_url":      material.FileURL,
+		"user_id":       material.UserID,
+		"faculty_id":    material.FacultyID,
+		"subject_id":    material.SubjectID,
+		"year_id":       material.YearID,
+		"university_id": material.UniversityID,
 	}
 	return models.AddMaterial(mat)
 }

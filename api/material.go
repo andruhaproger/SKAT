@@ -1,40 +1,75 @@
 package api
 
 import (
+	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/vgbhj/SKAT/models"
 	"github.com/vgbhj/SKAT/service/material_service"
 )
 
+var minioClient *minio.Client
+
+func init() {
+	var err error
+	minioClient, err = minio.New("minio:9000", &minio.Options{
+		Creds:  credentials.NewStaticV4("youraccesskey", "yoursecretkey", ""),
+		Secure: false,
+	})
+	if err != nil {
+		fmt.Println("Error initializing MinIO client:", err)
+	}
+}
+
 // AddMaterialHandler обрабатывает HTTP-запрос на добавление материала
 func AddMaterial(c *gin.Context) {
-	var material models.Material
-	material.Name = c.PostForm("name")
-	material.Desc = c.PostForm("description")
-
-	idStr := c.PostForm("id")
-	userIDStr := c.PostForm("user_id")
-
-	// Преобразование строки в int
-	var err error
-	if material.ID, err = strconv.Atoi(idStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	// получение пользователя с мидлваре
+	userId, exists := c.Get("currentUserId")
+	if !exists {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID not found"})
 		return
 	}
 
-	if material.UserID, err = strconv.Atoi(userIDStr); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
+	// Преобразование userId в int
+	userIdInt, ok := userId.(int)
+	if !ok {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is not of type int"})
 		return
 	}
 
-	// Получение остальных полей
-	material.Name = c.PostForm("name")
-	material.Desc = c.PostForm("description")
+	// Получаем ID фака по его имени
+	facultyId, err := models.GetFacultyIDByName(c.PostForm("faculty_name"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "faculty not found", Details: err.Error()})
+		return
+	}
+
+	// Получаем ID предмета для события
+	subjectID, err := models.GetSubjectIDByName(c.PostForm("subject_name"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "subject not found", Details: err.Error()})
+		return
+	}
+
+	// Получаем ID года для события
+	yearID, err := models.GetSubjectIDByName(c.PostForm("year_name"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "year not found", Details: err.Error()})
+		return
+	}
+
+	// Получаем ID года для события
+	universityID, err := models.GetUniversityIDByName(c.PostForm("university_name"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "university not found", Details: err.Error()})
+		return
+	}
 
 	// Чтение файла из запроса
 	file, err := c.FormFile("file")
@@ -43,7 +78,6 @@ func AddMaterial(c *gin.Context) {
 		return
 	}
 
-	// Открытие файла
 	data, err := file.Open()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not open file"})
@@ -51,19 +85,42 @@ func AddMaterial(c *gin.Context) {
 	}
 	defer data.Close()
 
-	// Чтение содержимого файла
-	fileBytes, err := ioutil.ReadAll(data)
+	bucketName := "mybucket"
+	objectName := file.Filename
+
+	// Создание бакета, если он не существует
+	err = minioClient.MakeBucket(context.Background(), bucketName, minio.MakeBucketOptions{})
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read file"})
+		exists, errBucketExists := minioClient.BucketExists(context.Background(), bucketName)
+		if errBucketExists == nil && exists {
+			fmt.Printf("Bucket %s already exists.\n", bucketName)
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create bucket: " + err.Error()})
+			return
+		}
+	}
+
+	// Загрузка файла в MinIO
+	_, err = minioClient.PutObject(context.Background(), bucketName, objectName, data, file.Size, minio.PutObjectOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to upload file to MinIO: " + err.Error()})
 		return
 	}
 
-	// Вызов функции сервиса для добавления материала
-	if err := material_service.AddMaterial(material, fileBytes); err != nil {
-		// Выводим текст ошибки в лог (опционально)
-		fmt.Println("Error adding material:", err)
+	// Сохранение метаданных в базе данных
+	fileURL := fmt.Sprintf("%s/%s", bucketName, objectName) // Путь к файлу в MinIO
+	material := models.Material{
+		Name:         c.PostForm("name"),
+		Desc:         c.PostForm("description"),
+		FileURL:      fileURL,
+		UserID:       userIdInt,
+		FacultyID:    &facultyId,
+		SubjectID:    &subjectID,
+		YearID:       &yearID,
+		UniversityID: &universityID,
+	}
 
-		// Возвращаем ошибку в ответе
+	if err := material_service.AddMaterial(material); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not save material to database", "details": err.Error()})
 		return
 	}
@@ -88,5 +145,22 @@ func GetMaterial(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, material)
+	// Получаем файл из MinIO
+	object, err := minioClient.GetObject(context.Background(), "mybucket", material.FileURL, minio.GetObjectOptions{})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve file from MinIO", "details": err.Error()})
+		return
+	}
+	defer object.Close()
+
+	// Читаем содержимое файла
+	fileData, err := io.ReadAll(object)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not read file from MinIO", "details": err.Error()})
+		return
+	}
+
+	// Возвращаем файл в ответе
+	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", material.FileURL))
+	c.Data(http.StatusOK, "application/octet-stream", fileData)
 }
