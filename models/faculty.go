@@ -7,6 +7,7 @@ import (
 )
 
 type Faculty struct {
+	// Используяется только в GET
 	ID           int    `json:"id" gorm:"primary_key"`
 	Name         string `json:"name" gorm:"not null" example:"Engineering"`
 	UniversityID int    `json:"university_id" gorm:"not null"`

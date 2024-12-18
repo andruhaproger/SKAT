@@ -52,9 +52,20 @@ func AddMaterial(c *gin.Context) {
 		return
 	}
 
-	userIdInt, ok := userId.(int)
-	if !ok {
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is not of type int"})
+	// Преобразование userId в int
+	var userIdInt int
+	switch v := userId.(type) {
+	case int:
+		userIdInt = v
+	case string:
+		var err error
+		userIdInt, err = strconv.Atoi(v)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid User ID format"})
+			return
+		}
+	default:
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is not of a valid type"})
 		return
 	}
 

@@ -51,6 +51,16 @@ func main() {
 		log.Fatal("Migration for university failed:", err)
 	}
 
+	// Добавление одного значения в таблицу university
+	_, err = db.Exec(`
+	INSERT INTO university (name) 
+	VALUES ('Example University')
+	ON CONFLICT (id) DO NOTHING;
+	`)
+	if err != nil {
+		log.Fatal("Inserting university failed:", err)
+	}
+
 	// Миграция для таблицы faculty
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS faculty (
@@ -61,6 +71,16 @@ func main() {
 	`)
 	if err != nil {
 		log.Fatal("Migration for faculty failed:", err)
+	}
+
+	// Добавление одного значения в таблицу faculty
+	_, err = db.Exec(`
+	INSERT INTO faculty (name, university_id) 
+	VALUES ('Example Faculty', 1)
+	ON CONFLICT (id) DO NOTHING;
+	`)
+	if err != nil {
+		log.Fatal("Inserting faculty failed:", err)
 	}
 
 	// Миграция для таблицы subject
@@ -74,6 +94,16 @@ func main() {
 		log.Fatal("Migration for subject failed:", err)
 	}
 
+	// Добавление одного значения в таблицу subject
+	_, err = db.Exec(`
+	INSERT INTO subject (name) 
+	VALUES ('Example Subject')
+	ON CONFLICT (id) DO NOTHING;
+	`)
+	if err != nil {
+		log.Fatal("Inserting subject failed:", err)
+	}
+
 	// Миграция для таблицы year
 	_, err = db.Exec(`
 	CREATE TABLE IF NOT EXISTS year (
@@ -83,6 +113,16 @@ func main() {
 	`)
 	if err != nil {
 		log.Fatal("Migration for year failed:", err)
+	}
+
+	// Добавление одного значения в таблицу year
+	_, err = db.Exec(`
+	INSERT INTO year (name) 
+	VALUES ('2024')
+	ON CONFLICT (id) DO NOTHING;
+	`)
+	if err != nil {
+		log.Fatal("Inserting year failed:", err)
 	}
 
 	// Миграция для таблицы access
@@ -107,11 +147,22 @@ func main() {
 		last_name VARCHAR(255),
 		registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 		university_id INTEGER REFERENCES university(id),
-		access INTEGER REFERENCES access(id)
+		access INTEGER
 	);
 	`)
 	if err != nil {
 		log.Fatal("Migration for users failed:", err)
+	}
+
+	// Добавление пользователя admin
+	_, err = db.Exec(`
+	INSERT INTO users (username, password, first_name, last_name, university_id, access) 
+	VALUES 
+	('admin', '$2a$10$YgzepzPAE0OZWr9P6mQVu.Ind9xcSN/DGCfOiVT8XClxWjWLWbfpa', 'Admin', 'Admin', 1, 1)
+	ON CONFLICT (id) DO NOTHING;
+	`)
+	if err != nil {
+		log.Fatal("Inserting admin user failed:", err)
 	}
 
 	_, err = db.Exec(`

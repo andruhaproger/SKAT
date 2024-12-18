@@ -7,6 +7,7 @@ import (
 )
 
 type Subject struct {
+	// Используяется только в GET
 	ID   int    `json:"id" gorm:"primary_key"`
 	Name string `json:"name" example:"Mathematics"`
 }
