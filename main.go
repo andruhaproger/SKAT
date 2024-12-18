@@ -24,6 +24,7 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.POST("/api/signup", api.CreateUser)
 	router.POST("/api/login", api.Login)
+
 	router.POST("/api/material", middleware.CheckAuth, api.AddMaterial)
 	router.GET("/api/material/:id", api.GetMaterial)
 

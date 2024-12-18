@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -52,20 +53,20 @@ func AddMaterial(c *gin.Context) {
 		return
 	}
 
-	// Преобразование userId в int
+	log.Printf("User ID type: %T", userId)
 	var userIdInt int
+	// Преобразование userId в int
 	switch v := userId.(type) {
-	case int:
-		userIdInt = v
-	case string:
-		var err error
-		userIdInt, err = strconv.Atoi(v)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "Invalid User ID format"})
+	case uint:
+		// Проверка на переполнение
+		if v > uint(int(^uint(0)>>1)) { // Максимальное значение int
+			c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is too large to convert to int"})
 			return
 		}
+		userIdInt = int(v)
+		// Ваш код здесь
 	default:
-		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is not of a valid type"})
+		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "User ID is not of type int or uint"})
 		return
 	}
 
