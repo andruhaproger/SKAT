@@ -128,7 +128,7 @@ func AddMaterial(c *gin.Context) {
 		return
 	}
 
-	fileURL := fmt.Sprintf("%s/%s", bucketName, objectName)
+	fileURL := fmt.Sprintf("%s", objectName)
 	material := models.Material{
 		Name:         c.PostForm("name"),
 		Desc:         c.PostForm("description"),
@@ -171,10 +171,10 @@ func GetMaterial(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Could not retrieve material"})
 		return
 	}
-	objects := minioClient.ListObjects(context.Background(), "mybucket", minio.ListObjectsOptions{Recursive: true})
-	for object := range objects {
-		fmt.Println(object.Key) // This will print all object keys in the bucket
-	}
+	// objects := minioClient.ListObjects(context.Background(), "mybucket", minio.ListObjectsOptions{Recursive: true})
+	// for object := range objects {
+	// 	fmt.Println(object.Key) // This will print all object keys in the bucket
+	// }
 
 	object, err := minioClient.GetObject(context.Background(), "mybucket", material.FileURL, minio.GetObjectOptions{})
 	if err != nil {
