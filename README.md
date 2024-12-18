@@ -28,7 +28,7 @@
 ```bash
 docker-compose up --build
 ```
-И перейти по: http://localhost:8080/swagger/index.htm
+И перейти по: http://localhost:8080/swagger/index.html
 ---
 
 ## Git flow
