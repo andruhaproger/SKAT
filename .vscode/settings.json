@@ -20,6 +20,16 @@
             "database": "mydb",
             "username": "myuser",
             "password": "pypassword"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "DockerSKAT",
+            "database": "mydatabase",
+            "username": "user",
+            "password": "password"
         }
     ]
 }

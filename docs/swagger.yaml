@@ -1,0 +1,98 @@
+definitions:
+  api.AuthInput:
+    properties:
+      password:
+        example: password123
+        type: string
+      username:
+        example: johndoe
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  api.ErrorResponse:
+    properties:
+      details:
+        example: Optional detailed error message
+        type: string
+      error:
+        example: Description of the error
+        type: string
+    type: object
+  api.SuccessResponse:
+    properties:
+      message:
+        example: User created successfully
+        type: string
+    type: object
+  api.TokenResponse:
+    properties:
+      token:
+        example: your_jwt_token_here
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and return a JWT token
+      parameters:
+      - description: User credentials
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuthInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: JWT token
+          schema:
+            $ref: '#/definitions/api.TokenResponse'
+        "400":
+          description: Invalid credentials
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: Login
+      tags:
+      - auth
+  /api/signup:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with a username and password
+      parameters:
+      - description: User details
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/api.AuthInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User created successfully
+          schema:
+            $ref: '#/definitions/api.SuccessResponse'
+        "400":
+          description: Username already exists or invalid input
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/api.ErrorResponse'
+      summary: CreateUser
+      tags:
+      - auth
+swagger: "2.0"
