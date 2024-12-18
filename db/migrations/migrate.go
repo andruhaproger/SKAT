@@ -17,25 +17,31 @@ func main() {
 	// close the db connection
 	defer db.Close()
 
-	// Миграция для таблицы users
-	_, err := db.Exec(`
-	CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
-		username VARCHAR(255) NOT NULL UNIQUE,
-		password VARCHAR(255) NOT NULL,
-		first_name VARCHAR(255),
-		last_name VARCHAR(255),
-		registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-		university_id INTEGER REFERENCES university(id),
-		access INTEGER REFERENCES access(id)
-	);
-	`)
-	if err != nil {
-		log.Fatal("Migration for users failed:", err)
+	// Удаление таблиц в обратном порядке их создания
+	tables := []string{
+		"material",
+		"favorite",
+		"log",
+		"users",
+		"access",
+		"year",
+		"subject",
+		"faculty",
+		"university",
 	}
 
+	for _, table := range tables {
+		_, err := db.Exec("DROP TABLE IF EXISTS " + table + " CASCADE;")
+		if err != nil {
+			log.Fatalf("Failed to drop table %s: %v", table, err)
+		}
+		log.Printf("Table %s dropped successfully.", table)
+	}
+
+	log.Println("All tables dropped successfully.")
+
 	// Миграция для таблицы university
-	_, err = db.Exec(`
+	_, err := db.Exec(`
 	CREATE TABLE IF NOT EXISTS university (
 		id SERIAL PRIMARY KEY,
 		name VARCHAR(255) NOT NULL
@@ -89,6 +95,23 @@ func main() {
 	`)
 	if err != nil {
 		log.Fatal("Migration for access failed:", err)
+	}
+
+	// Миграция для таблицы users
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS users (
+		id SERIAL PRIMARY KEY,
+		username VARCHAR(255) NOT NULL UNIQUE,
+		password VARCHAR(255) NOT NULL,
+		first_name VARCHAR(255),
+		last_name VARCHAR(255),
+		registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		university_id INTEGER REFERENCES university(id),
+		access INTEGER REFERENCES access(id)
+	);
+	`)
+	if err != nil {
+		log.Fatal("Migration for users failed:", err)
 	}
 
 	_, err = db.Exec(`

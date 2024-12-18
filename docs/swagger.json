@@ -4,6 +4,172 @@
         "contact": {}
     },
     "paths": {
+        "/api/faculties": {
+            "get": {
+                "description": "Retrieve all faculties",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "faculties"
+                ],
+                "summary": "GetFaculties",
+                "responses": {
+                    "200": {
+                        "description": "List of faculties",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Faculty"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve faculties",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/faculty": {
+            "post": {
+                "description": "Add a new faculty",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "faculties"
+                ],
+                "summary": "AddFaculty",
+                "parameters": [
+                    {
+                        "description": "Faculty",
+                        "name": "faculty",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Faculty"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Faculty added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/faculty/name/{name}": {
+            "get": {
+                "description": "Retrieve faculty ID by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "faculties"
+                ],
+                "summary": "GetFacultyIDByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Faculty Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Faculty ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid faculty name",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve faculty ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/faculty/{id}": {
+            "get": {
+                "description": "Retrieve a single faculty by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "faculties"
+                ],
+                "summary": "GetFaculty",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Faculty ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Faculty details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Faculty"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid faculty ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve faculty",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "description": "Authenticate a user and return a JWT token",
@@ -239,6 +405,504 @@
                     }
                 }
             }
+        },
+        "/api/subject": {
+            "post": {
+                "description": "Add a new subject",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "AddSubject",
+                "parameters": [
+                    {
+                        "description": "Subject",
+                        "name": "subject",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Subject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subject/name/{name}": {
+            "get": {
+                "description": "Retrieve a subject ID by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "GetSubjectIDByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid subject name",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve subject ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subject/{id}": {
+            "get": {
+                "description": "Retrieve a single subject by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "GetSubject",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subject ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Subject details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Subject"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid subject ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve subject",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/subjects": {
+            "get": {
+                "description": "Retrieve all subjects",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "GetSubjects",
+                "responses": {
+                    "200": {
+                        "description": "List of subjects",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Subject"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve subjects",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/universities": {
+            "get": {
+                "description": "Retrieve all universities",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "universities"
+                ],
+                "summary": "GetUniversities",
+                "responses": {
+                    "200": {
+                        "description": "List of universities",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.University"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve universities",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/university": {
+            "post": {
+                "description": "Add a new university",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "universities"
+                ],
+                "summary": "AddUniversity",
+                "parameters": [
+                    {
+                        "description": "University",
+                        "name": "university",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.University"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "University added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/university/name/{name}": {
+            "get": {
+                "description": "Retrieve university ID by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "universities"
+                ],
+                "summary": "GetUniversityIDByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "University Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "University ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid university name",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve university ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/university/{id}": {
+            "get": {
+                "description": "Retrieve a single university by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "universities"
+                ],
+                "summary": "GetUniversity",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "University ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "University details",
+                        "schema": {
+                            "$ref": "#/definitions/models.University"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid university ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve university",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/year": {
+            "post": {
+                "description": "Add a new year",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "years"
+                ],
+                "summary": "AddYear",
+                "parameters": [
+                    {
+                        "description": "Year",
+                        "name": "year",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.Year"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Year added successfully",
+                        "schema": {
+                            "$ref": "#/definitions/models.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid input",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/year/name/{name}": {
+            "get": {
+                "description": "Retrieve a year ID by its name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "years"
+                ],
+                "summary": "GetYearIDByName",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Year Name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Year ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid year name",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve year ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/year/{id}": {
+            "get": {
+                "description": "Retrieve a single year by its ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "years"
+                ],
+                "summary": "GetYear",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Year ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Year details",
+                        "schema": {
+                            "$ref": "#/definitions/models.Year"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid year ID",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve year",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/years": {
+            "get": {
+                "description": "Retrieve all years",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "years"
+                ],
+                "summary": "GetYears",
+                "responses": {
+                    "200": {
+                        "description": "List of years",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Year"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve years",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -303,12 +967,64 @@
                 }
             }
         },
+        "models.Faculty": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Engineering"
+                },
+                "university_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Subject": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Mathematics"
+                }
+            }
+        },
         "models.SuccessResponse": {
             "type": "object",
             "properties": {
                 "message": {
                     "type": "string",
                     "example": "Event added successfully"
+                }
+            }
+        },
+        "models.University": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Harvard University"
+                }
+            }
+        },
+        "models.Year": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Используяется только в GET",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "2024"
                 }
             }
         }
