@@ -27,6 +27,7 @@ func main() {
 
 	router.POST("/api/material", middleware.CheckAuth, api.AddMaterial)
 	router.GET("/api/material/:id", api.GetMaterial)
+	router.GET("/api/materials", api.GetMaterials)
 
 	router.POST("/api/faculty", api.AddFaculty)
 	router.GET("/api/faculty/:id", api.GetFaculty)

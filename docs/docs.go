@@ -335,13 +335,6 @@ const docTemplate = `{
                 "summary": "GetMaterial",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Bearer token",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
                         "type": "integer",
                         "description": "Material ID",
                         "name": "id",
@@ -364,6 +357,38 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/materials": {
+            "get": {
+                "description": "Retrieve all materials",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "materials"
+                ],
+                "summary": "GetMaterials",
+                "responses": {
+                    "200": {
+                        "description": "List of materials",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Material"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Could not retrieve materials",
                         "schema": {
                             "$ref": "#/definitions/models.ErrorResponse"
                         }
@@ -990,6 +1015,42 @@ const docTemplate = `{
                     "example": "Engineering"
                 },
                 "university_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.Material": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "faculty_id": {
+                    "type": "integer"
+                },
+                "file_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "description": "Только для гет запроса",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "subject_id": {
+                    "type": "integer"
+                },
+                "university_id": {
+                    "type": "integer"
+                },
+                "upload_date": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "year_id": {
                     "type": "integer"
                 }
             }

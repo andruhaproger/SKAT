@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/vgbhj/SKAT/db"
 	"github.com/vgbhj/SKAT/models"
 	"github.com/vgbhj/SKAT/service/material_service"
 )
@@ -152,7 +153,6 @@ func AddMaterial(c *gin.Context) {
 // @Tags materials
 // @Accept json
 // @Produce octet-stream
-// @Param Authorization header string true "Bearer token"
 // @Param id path int true "Material ID"
 // @Success 200 {file} string "Material File"
 // @Failure 400 {object} models.ErrorResponse "Bad Request"
@@ -191,4 +191,41 @@ func GetMaterial(c *gin.Context) {
 
 	c.Header("Content-Disposition", fmt.Sprintf("attachment; filename=%s", material.FileURL))
 	c.Data(http.StatusOK, "application/octet-stream", fileData)
+}
+
+// @Summary GetMaterials
+// @Description Retrieve all materials
+// @Tags materials
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Material "List of materials"
+// @Failure 500 {object} models.ErrorResponse "Could not retrieve materials"
+// @Router /api/materials [get]
+func GetMaterials(c *gin.Context) {
+	db := db.ConnectDB()
+	defer db.Close()
+
+	rows, err := db.Query("SELECT id, name, description, file_url, user_id, faculty_id, subject_id, year_id, university_id FROM materials")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Could not retrieve materials", Details: err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	var materials []models.Material
+	for rows.Next() {
+		var material models.Material
+		if err := rows.Scan(&material.ID, &material.Name, &material.Desc, &material.FileURL, &material.UserID, &material.FacultyID, &material.SubjectID, &material.YearID, &material.UniversityID); err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Could not scan material", Details: err.Error()})
+			return
+		}
+		materials = append(materials, material)
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Error occurred during rows iteration", Details: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, materials)
 }
