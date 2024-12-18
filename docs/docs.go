@@ -982,6 +982,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "description": "Используяется только в GET",
                     "type": "integer"
                 },
                 "name": {
@@ -997,6 +998,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "description": "Используяется только в GET",
                     "type": "integer"
                 },
                 "name": {
@@ -1018,6 +1020,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "description": "Используяется только в GET",
                     "type": "integer"
                 },
                 "name": {

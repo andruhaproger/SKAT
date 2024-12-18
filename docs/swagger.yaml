@@ -44,6 +44,7 @@ definitions:
   models.Faculty:
     properties:
       id:
+        description: Используяется только в GET
         type: integer
       name:
         example: Engineering
@@ -54,6 +55,7 @@ definitions:
   models.Subject:
     properties:
       id:
+        description: Используяется только в GET
         type: integer
       name:
         example: Mathematics
@@ -68,6 +70,7 @@ definitions:
   models.University:
     properties:
       id:
+        description: Используяется только в GET
         type: integer
       name:
         example: Harvard University
