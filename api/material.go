@@ -82,7 +82,7 @@ func AddMaterial(c *gin.Context) {
 		return
 	}
 
-	yearID, err := models.GetSubjectIDByName(c.PostForm("year_name"))
+	yearID, err := models.GetYearIDByName(c.PostForm("year_name"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponse{Error: "year not found", Details: err.Error()})
 		return
@@ -170,6 +170,10 @@ func GetMaterial(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponse{Error: "Could not retrieve material"})
 		return
+	}
+	objects := minioClient.ListObjects(context.Background(), "mybucket", minio.ListObjectsOptions{Recursive: true})
+	for object := range objects {
+		fmt.Println(object.Key) // This will print all object keys in the bucket
 	}
 
 	object, err := minioClient.GetObject(context.Background(), "mybucket", material.FileURL, minio.GetObjectOptions{})
