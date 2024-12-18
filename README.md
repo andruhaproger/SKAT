@@ -22,6 +22,15 @@
 ![dbmodel.png](docs/dbmodel.png)
 ---
 
+## Api docs (swagger)
+
+Для получение документации нужно запустить контейнер приложения
+```bash
+docker-compose up --build
+```
+И перейти по: http://localhost:8080/swagger/index.htm
+---
+
 ## Git flow
 
 ### Основные ветки
