@@ -94,11 +94,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	db := db.ConnectDB()
-	defer db.Close()
+	dbql := db.ConnectDB()
+	defer dbql.Close()
 
 	var userFound models.User
-	err := db.QueryRow("SELECT id, password FROM users WHERE username = $1", authInput.Username).Scan(&userFound.ID, &userFound.Password)
+	err := dbql.QueryRow("SELECT id, password FROM users WHERE username = $1", authInput.Username).Scan(&userFound.ID, &userFound.Password)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "User not found"})
 		return
@@ -124,6 +124,12 @@ func Login(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "Failed to generate token", Details: err.Error()})
+		return
+	}
+
+	err = db.RedisClient.Set(db.Ctx, "auth_token:"+token, userFound.ID, 24*time.Hour).Err()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save token"})
 		return
 	}
 

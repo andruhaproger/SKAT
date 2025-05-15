@@ -14,7 +14,7 @@ import (
 func init() {
 	config.LoadEnvs()
 	db.ConnectDB()
-
+	db.ConnectRedis()
 }
 
 func main() {

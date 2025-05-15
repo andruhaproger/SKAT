@@ -12,9 +12,11 @@ services:
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=youraccesskey
       - MINIO_SECRET_KEY=yoursecretkey
+      - REDIS_HOST=redis:6379
     depends_on:
       - db
       - minio
+      - redis
     volumes:
       - .:/app
     command: >
@@ -35,8 +37,8 @@ services:
   minio:
     image: minio/minio
     ports:
-      - "9000:9000" # Порт для доступа к MinIO API
-      - "9001:9001" # Порт для доступа к консоли MinIO
+      - "9000:9000" 
+      - "9001:9001"
     environment:
       MINIO_ACCESS_KEY: youraccesskey
       MINIO_SECRET_KEY: yoursecretkey
@@ -44,6 +46,15 @@ services:
     volumes:
       - minio_data:/data
 
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data 
+
 volumes:
   pgdata:
   minio_data:
+  redis_data: 
